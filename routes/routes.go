@@ -17,5 +17,9 @@ func RegisterRoutes(r *gin.Engine) {
 	protected.Use(middlewares.RequireAuth())
 	{
 		protected.GET("/get-profile", controllers.GetProfile)
+		protected.POST("/check-eligibility", controllers.CheckEligibility)
+		protected.POST("/apply-loan",  controllers.ApplyLoan)
+		protected.GET("/my-loans", controllers.GetMyLoans)
+
 	}
 }

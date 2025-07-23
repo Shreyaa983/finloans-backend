@@ -1,13 +1,13 @@
 package config
 
 import (
+	"finloans-backend/models"
 	"fmt"
 	"log"
 	"os"
-	"finloans-backend/models"
 
-	"gorm.io/driver/mysql"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -33,6 +33,8 @@ func ConnectDB() {
 	}
 	DB = db
 
-
-	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(
+		&models.User{},
+		&models.LoanApplication{},
+	)
 }
