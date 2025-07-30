@@ -10,13 +10,17 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 
+	// Public routes: authentication
 	api.POST("/register", controllers.Register)
 	api.POST("/login", controllers.Login)
 
+	// Protected routes: user operations
 	protected := api.Group("/auth")
 	protected.Use(middlewares.RequireAuth())
 	{
 		protected.GET("/get-profile", controllers.GetProfile)
+
+		// Loan operations
 		protected.POST("/check-eligibility", controllers.CheckEligibility)
 		protected.POST("/apply-loan",  controllers.ApplyLoan)
 		protected.GET("/my-loans", controllers.GetMyLoans)

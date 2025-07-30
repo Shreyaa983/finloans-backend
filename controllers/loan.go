@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"finloans-backend/config"
@@ -10,6 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CheckEligibility godoc
+// @Summary Check loan eligibility
+// @Description Check if the user is eligible for a loan based on income and age
+// @Tags Loans
+// @Accept json
+// @Produce json
+// @Param eligibility body models.EligibilityRequest true "Eligibility input"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /check-eligibility [post]
+// @Security BearerAuth
 func CheckEligibility(c *gin.Context) {
 	var req struct {
 		Income float64 `json:"income"`
@@ -33,6 +45,17 @@ func CheckEligibility(c *gin.Context) {
 	})
 }
 
+// ApplyLoan godoc
+// @Summary Apply for a new loan
+// @Description Submits a loan application for the authenticated user
+// @Tags Loans
+// @Accept json
+// @Produce json
+// @Param loan body models.LoanRequest true "Loan details"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /apply-loan [post]
+// @Security BearerAuth
 func ApplyLoan(c *gin.Context) {
 	var req struct {
 		Amount float64 `json:"amount"`
@@ -44,7 +67,13 @@ func ApplyLoan(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetInt("userID") // from middleware
+	userID := c.MustGet("userID").(uint) // from middleware
+
+	var user models.User
+	if err := config.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
 	loan := models.LoanApplication{
 		UserID:     uint(userID),
@@ -60,20 +89,29 @@ func ApplyLoan(c *gin.Context) {
 		return
 	}
 
-	go helpers.GenerateAndEmailPDF(loan)
+	go helpers.GenerateAndEmailPDF(loan, user.Email, user.Name)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Application submitted", "loan_id": loan.ID})
 }
 
-
+// GetMyLoans godoc
+// @Summary Get all loans for the authenticated user
+// @Description Fetches all loan applications for the authenticated user
+// @Tags Loans
+// @Produce json
+// @Success 200 {array} models.LoanResponse
+// @Failure 500 {object} map[string]interface{}
+// @Router /my-loans [get]
+// @Security BearerAuth
 func GetMyLoans(c *gin.Context) {
-    userID := c.GetInt("userID")
-    var loans []models.LoanApplication
+	userID := c.MustGet("userID").(uint)
+	fmt.Println("UserID from getmyloans:", userID)
+	var loans []models.LoanApplication
 
-    if err := config.DB.Where("user_id = ?", userID).Find(&loans).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch loans"})
-        return
-    }
+	if err := config.DB.Where("user_id = ?", userID).Find(&loans).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch loans"})
+		return
+	}
 
-    c.JSON(http.StatusOK, loans)
+	c.JSON(http.StatusOK, loans)
 }

@@ -12,6 +12,17 @@ import (
 
 // Register handles user registration
 // It expects a JSON body with name, email, and password fields
+
+// @Summary User Registration
+// @Description Registers a new user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body models.UserResponse true "User details"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /register [post]
 func Register(c *gin.Context) {
 
 	var body models.User
@@ -31,16 +42,23 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Registered Succesfully", "user": body})
 }
 
-
 // Login handles user login
 // It expects a JSON body with email and password fields
 // If successful, it returns a JWT token
+
+// @Summary User Login
+// @Description Logs in a user and returns a JWT token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param login body models.LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 func Login(c *gin.Context) {
 
-	var body struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var body models.LoginRequest
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})

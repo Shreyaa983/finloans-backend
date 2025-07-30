@@ -1,0 +1,249 @@
+basePath: /api
+definitions:
+  models.EligibilityRequest:
+    properties:
+      age:
+        type: integer
+      income:
+        type: number
+    type: object
+  models.LoanRequest:
+    properties:
+      amount:
+        type: number
+      tenure:
+        type: integer
+    type: object
+  models.LoanResponse:
+    properties:
+      amount:
+        type: number
+      id:
+        type: integer
+      is_eligible:
+        type: boolean
+      reason:
+        type: string
+      status:
+        type: string
+      tenure:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API documentation for Finloans backend
+  title: Finloans Backend API
+  version: "1.0"
+paths:
+  /apply-loan:
+    post:
+      consumes:
+      - application/json
+      description: Submits a loan application for the authenticated user
+      parameters:
+      - description: Loan details
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Apply for a new loan
+      tags:
+      - Loans
+  /check-eligibility:
+    post:
+      consumes:
+      - application/json
+      description: Check if the user is eligible for a loan based on income and age
+      parameters:
+      - description: Eligibility input
+        in: body
+        name: eligibility
+        required: true
+        schema:
+          $ref: '#/definitions/models.EligibilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Check loan eligibility
+      tags:
+      - Loans
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user and returns a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User Login
+      tags:
+      - Auth
+  /my-loans:
+    get:
+      description: Fetches all loan applications for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.LoanResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all loans for the authenticated user
+      tags:
+      - Loans
+  /profile:
+    get:
+      description: Fetches the profile of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Profile
+      tags:
+      - User
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User Registration
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
