@@ -46,15 +46,17 @@ It reflects the kind of work I contributed to in a real-world environment, inclu
 
 ## 📁 Project Structure
 
+```
 finloans-backend/
-├── controllers/ # Route handler logic
-├── middlewares/ # Auth & other middleware
-├── models/ # Database models
-├── public/ # Static files (PDFs, etc.)
-├── routes/ # Route definitions
-├── utils/ # Helper utilities
-├── main.go # Entry point
-└── go.mod # Go module definitions
+├── controllers/       # Route handler logic
+├── middlewares/       # Auth & other middleware
+├── models/            # Database models
+├── public/            # Static files (PDFs, etc.)
+├── routes/            # Route definitions
+├── utils/             # Helper utilities
+├── main.go            # Entry point
+└── go.mod             # Go module definitions
+```
 
 ---
 ## 🔐 API Endpoints
